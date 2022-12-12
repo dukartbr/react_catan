@@ -1,25 +1,62 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useRef } from "react";
+import {
+  Box,
+  ChakraProvider,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  Grid,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { Theme } from "src/themes/theme";
+import ResourcePanel from "src/components/ResourcePanel";
+import Header from "src/components/Header";
+import { resources } from "src/resources";
+
+function generateCatanGame() {
+  return Array.from(
+    { length: 40 },
+    () => resources[Math.floor(Math.random() * resources.length)]
+  );
+}
 
 function App() {
+  const catanGame = useRef(generateCatanGame());
+  const {
+    isOpen: isResourcesOpen,
+    onOpen: onResourcesOpen,
+    onClose: onResourcesClose,
+  } = useDisclosure();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ChakraProvider theme={Theme}>
+      <Header
+        onResourceOpen={onResourcesOpen}
+        onResourceClose={onResourcesClose}
+      />
+      <Box py={12} px={16} bg='gray.200'>
+        <Grid templateColumns='repeat(5, 1fr)' gap={10}>
+          {/* <pre>{JSON.stringify(catanGame, null, 2)}</pre> */}
+          {catanGame.current.map((resource) => (
+            <ResourcePanel resource={resource} />
+          ))}
+        </Grid>
+      </Box>
+      <Drawer
+        placement='bottom'
+        onClose={onResourcesClose}
+        isOpen={isResourcesOpen}
+      >
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader>Your Resources</DrawerHeader>
+        </DrawerContent>
+      </Drawer>
+    </ChakraProvider>
   );
 }
 
